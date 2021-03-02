@@ -37,10 +37,11 @@ jobs:
           check-latest: true
           scope: ${{github.repository_owner}}
           registry-url: https://npm.pkg.github.com/
-      - name: Clean install dependencies
-        run: npm ci
+      - run: cat /home/runner/work/_temp/.npmrc
       - run: npm config list
       - run: npm config list --json
+      - name: Clean install dependencies
+        run: npm ci
       - name: Publish package to GitHub Package Registry
         run: npm publish
         env:
@@ -50,6 +51,7 @@ jobs:
         with:
           scope: ${{github.repository_owner}}
           registry-url: https://registry.npmjs.org/
+      - run: cat /home/runner/work/_temp/.npmrc
       - run: npm config list
       - run: npm config list --json
       - name: Publish package to npm
