@@ -1,3 +1,5 @@
+/* eslint-disable max-len, max-lines-per-function */
+
 import * as sdk from 'aws-sdk';
 import * as sdkMock from 'aws-sdk-mock';
 sdkMock.setSDKInstance(sdk);

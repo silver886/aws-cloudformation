@@ -1,36 +1,40 @@
-import * as Json from '@silver886/type-json';
+import type * as Json from '@silver886/type-json';
 import * as axios from 'axios';
 
 import * as Request from './request';
 import * as Response from './response';
 
-export { Request, Response };
+export {Request, Response};
 
 export class Handle {
     public readonly response: Response.Result;
 
+    protected event: Request.Event;
+
     private done: boolean;
 
-    constructor(protected event: Request.Event, physicalResourceId?: string) {
+    public constructor(event: Request.Event, physicalResourceId?: string) {
+        this.event = event;
+        let physResId = physicalResourceId;
         if (event.RequestType === Request.Type.UPDATE || event.RequestType === Request.Type.DELETE) {
-            physicalResourceId = event.PhysicalResourceId;
+            physResId = event.PhysicalResourceId;
         }
-        if (!physicalResourceId) throw new Error('Expect has PhysicalResourceId in event.');
+        if (!physResId) throw new Error('Expect has PhysicalResourceId in event.');
 
         this.response = {
             /* eslint-disable @typescript-eslint/naming-convention */
-            Status: Response.Status.FAILED,
-            PhysicalResourceId: physicalResourceId,
-            StackId: event.StackId,
-            RequestId: event.RequestId,
-            LogicalResourceId: event.LogicalResourceId,
+            Status:             Response.Status.FAILED,
+            PhysicalResourceId: physResId,
+            StackId:            event.StackId,
+            RequestId:          event.RequestId,
+            LogicalResourceId:  event.LogicalResourceId,
             /* eslint-enable @typescript-eslint/naming-convention */
         };
 
         if (!this.response.PhysicalResourceId) throw new Error('Expect has PhysicalResourceId.');
     }
 
-    async failed(reason?: string): Promise<void> {
+    public async failed(reason?: string): Promise<void> {
         this.checkDone();
 
         this.response.Status = Response.Status.FAILED;
@@ -43,7 +47,7 @@ export class Handle {
         this.done = true;
     }
 
-    async success(reason?: string): Promise<void> {
+    public async success(reason?: string): Promise<void> {
         this.checkDone();
 
         this.response.Status = Response.Status.SUCCESS;
@@ -56,40 +60,34 @@ export class Handle {
         this.done = true;
     }
 
-    get reason(): string {
-        return this.response.Reason ?
-            this.response.Reason :
-            '';
+    public get reason(): string {
+        return this.response.Reason ?? '';
     }
 
-    set reason(reason: string) {
+    public set reason(reason: string) {
         this.response.Reason = reason;
     }
 
 
-    get noEcho(): boolean {
-        return this.response.NoEcho ?
-            this.response.NoEcho :
-            false;
+    public get noEcho(): boolean {
+        return this.response.NoEcho ?? false;
     }
 
-    set noEcho(noEcho: boolean) {
+    public set noEcho(noEcho: boolean) {
         this.response.NoEcho = noEcho;
     }
 
-    get data(): Json.Object {
-        return this.response.Data ?
-            this.response.Data :
-            {};
+    public get data(): Json.Object {
+        return this.response.Data ?? {};
     }
 
-    set data(data: Json.Object) {
+    public set data(data: Json.Object) {
         this.response.Data = data;
     }
 
-    reasonInsert(reason: string): void {
+    public reasonInsert(reason: string): void {
         this.response.Reason = this.response.Reason ?
-            reason + ' ' + this.response.Reason :
+            `${reason} ${this.response.Reason}` :
             reason;
     }
 
@@ -97,8 +95,7 @@ export class Handle {
         if (this.done) throw new Error('This resource has done');
     }
 
-
-    private sendResponse(): Promise<axios.AxiosResponse<any>> { // eslint-disable-line @typescript-eslint/no-explicit-any
+    private async sendResponse(): Promise<axios.AxiosResponse> { // eslint-disable-line @typescript-eslint/no-explicit-any
         return axios.default.put(this.event.ResponseURL, this.response);
     }
 }
