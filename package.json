@@ -6,12 +6,11 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "comments": "leasot --ignore node_modules/** .git/** --tags NOTE OPTIMIZE TODO HACK XXX FIXME BUG --filetype .ts **",
-    "watch-pretest": "npm run pretest -- --watch",
-    "watch-test": "npm test -- --watchAll",
-    "pretest": "tsc -p ./test/tsconfig.json",
-    "test": "jest --coverage",
+    "watch-pretest": "tsc -p ./test/tsconfig.json --watch",
+    "watch-test": "jest --coverage --watchAll",
+    "test": "tsc -p ./test/tsconfig.json && jest --coverage",
     "prepare": "tsc",
-    "prepublishOnly": "npm test"
+    "prepublishOnly": "pnpm test"
   },
   "repository": {
     "type": "git",
@@ -32,7 +31,7 @@
   },
   "homepage": "https://github.com/silver886/aws-cloudformation#readme",
   "devDependencies": {
-    "@silver886/eslint-config": "^1.0.2",
+    "@silver886/eslint-config": "^1.0.4",
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.31",
     "@typescript-eslint/eslint-plugin": "^4.15.2",
